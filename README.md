@@ -50,3 +50,8 @@
   ![회의실예약(삭제) PNG](https://user-images.githubusercontent.com/68727627/147058390-0e73bae6-53e7-4f42-bc4e-6505d28574b0.png)
   
   등록된 회의를 삭제할 수 있음.
+
+<br/>
+
+- ### DB테이블 (MySQL)
+  ![DB테이블](https://user-images.githubusercontent.com/68727627/147059501-087bea63-5fcc-4b64-ac8f-541279de4e04.PNG)
