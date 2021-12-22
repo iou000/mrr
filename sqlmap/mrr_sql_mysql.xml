@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="admin.mrr">
+
+	<select id ="checkRsdveTmMrrMgt" parameterType="dataMap" resultType="int">
+	SELECT COUNT(*) AS RSDVE_CNT
+	FROM TB_MRR A
+	WHERE 1=1
+		<![CDATA[
+	AND A.RSDVE_DT = #{rsdve_dt, jdbcType=VARCHAR}
+		]]>
+		<![CDATA[
+	AND A.START_T <= #{end_t, jdbcType=VARCHAR}
+		]]>
+		<![CDATA[
+	AND A.END_T >= #{start_t, jdbcType=VARCHAR}
+		]]>
+		<![CDATA[
+	AND A.START_T <> #{start_t, jdbcType=VARCHAR}
+	AND A.END_T <> #{end_t, jdbcType=VARCHAR}
+		]]>
+
+	</select>
+
+	<select id="selectTotCntMrrMgt" parameterType="dataMap" resultType="int">
+	/* admin.mrr.selectTotCntMrrMgt */
+	SELECT COUNT(1) AS TOT_CNT
+	FROM TB_MRR A
+	WHERE 1=1
+			<if test="sch_start_rsdve_dt_tmp != null and sch_start_rsdve_dt_tmp != ''">
+		<![CDATA[
+	AND A.RSDVE_DT >= #{sch_start_rsdve_dt_tmp, jdbcType=VARCHAR}
+		]]>
+		</if>
+		<if test="sch_end_rsdve_dt_tmp != null and sch_end_rsdve_dt_tmp != ''">
+		<![CDATA[
+	AND A.RSDVE_DT <= #{sch_end_rsdve_dt_tmp, jdbcType=VARCHAR}
+		]]>
+		</if>
+			<if test="sch_text != null and sch_text != ''">
+		AND A.SJ LIKE CONCAT('%', #{sch_text, jdbcType=VARCHAR}, '%')
+			</if>
+
+	</select>
+
+	<select id="selectPageListMrrMgt" parameterType="dataMap" resultType="dataMap">
+	/* admin.mrr.selectPageListMrrMgt */
+	SELECT A.MRR_SEQ
+		,A.SJ
+		,A.CN
+		,A.STTUS
+		,A.RGST_NO
+		,A.DEPT
+		,DATE_FORMAT(STR_TO_DATE(A.RSDVE_DT, '%Y%m%d'), '%Y.%m.%d') AS RSDVE_DT
+		,DATE_FORMAT(STR_TO_DATE(A.START_T, '%H%i'), '%H:%i') AS START_T
+		,DATE_FORMAT(STR_TO_DATE(A.END_T, '%H%i'), '%H:%i') AS END_T
+		,CASE A.DELETE_YN WHEN 'Y' THEN '예' ELSE '아니오' END DELETE_YN_NM
+		,DATE_FORMAT(A.RGST_DT, '%Y.%m.%d') AS RGST_DT
+	FROM TB_MRR A
+	WHERE 1=1
+		<if test="sch_start_rsdve_dt_tmp != null and sch_start_rsdve_dt_tmp != ''">
+		<![CDATA[
+	AND A.RSDVE_DT >= #{sch_start_rsdve_dt_tmp, jdbcType=VARCHAR}
+		]]>
+		</if>
+		<if test="sch_end_rsdve_dt_tmp != null and sch_end_rsdve_dt_tmp != ''">
+		<![CDATA[
+	AND A.RSDVE_DT <= #{sch_end_rsdve_dt_tmp, jdbcType=VARCHAR}
+		]]>
+		</if>
+		<if test="sch_text != null and sch_text != ''">
+	AND A.SJ LIKE CONCAT('%', #{sch_text, jdbcType=VARCHAR}, '%')
+		</if>
+	ORDER BY A.RGST_DT DESC
+	LIMIT #{limitStart, jdbcType=VARCHAR}, #{limitCount, jdbcType=VARCHAR}
+	</select>
+
+	<resultMap id="mrrDetailMap" type="dataMap">
+		<result property="MRR_SEQ"			column="MRR_SEQ" />
+		<result property="SJ"				column="SJ" />
+		<result property="CN"				column="CN" />
+		<result property="RSDVE_DT"			column="RSDVE_DT" />
+		<result property="STTUS"			column="STTUS" />
+		<result property="RGST_NO"			column="RGST_NO" />
+		<result property="DEPT"				column="DEPT" />
+		<result property="RGST_DT"			column="RGST_DT" />
+		<result property="START_T"			column="START_T" />
+		<result property="END_T"			column="END_T" />
+
+	</resultMap>
+
+	<select id="selectMrrMgt" parameterType="dataMap" resultMap="mrrDetailMap">
+   /* admin.mrr.selectMrrMgt */
+   SELECT A.MRR_SEQ
+      ,A.SJ
+      ,A.CN
+      ,A.STTUS
+      ,A.RGST_NO
+      ,A.DEPT
+      ,PARTCPTN_CNT
+      ,DATE_FORMAT(STR_TO_DATE(A.RSDVE_DT, '%Y%m%d'), '%Y.%m.%d') AS RSDVE_DT
+      ,DATE_FORMAT(STR_TO_DATE(A.START_T, '%H%i'), '%H:%i') AS START_T
+      ,DATE_FORMAT(STR_TO_DATE(A.END_T, '%H%i'), '%H:%i') AS END_T
+      ,CASE A.DELETE_YN WHEN 'Y' THEN '예' ELSE '아니오' END DELETE_YN_NM
+      ,DATE_FORMAT(A.RGST_DT, '%Y.%m.%d') AS RGST_DT
+   FROM TB_MRR A
+   WHERE A.MRR_SEQ = #{mrr_seq, jdbcType=VARCHAR}
+   </select>
+
+	<delete id="deleteMrrMgt" parameterType="dataMap">
+	/* admin.mrr.deleteMrrMgt */
+	<![CDATA[
+	DELETE FROM TB_MRR WHERE MRR_SEQ = #{mrr_seq, jdbcType=VARCHAR}
+	]]>
+	</delete>
+
+	<insert id="insertMrrMgt" parameterType="dataMap">
+	/* admin.mrr.insertMrrMgt */
+
+	INSERT INTO TB_MRR ( SJ, CN, RSDVE_DT, STTUS, RGST_NO, DEPT, RGST_DT, START_T, END_T, DELETE_YN, PARTCPTN_CNT )
+	VALUES (#{sj}
+			, #{cn}
+			, #{rsdve_dt}
+			, '예약완료'
+			, #{rgst_no}
+			, #{dept}
+			, NOW()
+			, #{start_t}
+			, #{end_t}
+			, 'N'
+			, #{partcptn_cnt} )
+	</insert>
+
+	<update id="updateMrrMgt" parameterType="dataMap">
+	/* admin.mrr.updateMrrMgt */
+	<![CDATA[
+	UPDATE TB_MRR
+	SET 	SJ = #{sj, jdbcType=VARCHAR}
+			,CN = #{cn, jdbcType=VARCHAR}
+			,RGST_NO = #{rgst_no, jdbcType=VARCHAR}
+			,DEPT = #{dept, jdbcType=VARCHAR}
+			,RSDVE_DT = #{rsdve_dt, jdbcType=VARCHAR}
+			,START_T = #{start_t, jdbcType=VARCHAR}
+			,END_T = #{end_t, jdbcType=VARCHAR}
+			,PARTCPTN_CNT = #{partcptn_cnt, jdbcType=VARCHAR}
+			,UPDT_DT = NOW()
+	WHERE MRR_SEQ = #{mrr_seq, jdbcType=VARCHAR}
+	]]>
+	</update>
+
+	<select id="selectListMrrCldr" parameterType="dataMap" resultType="dataMap">
+   /* admin.mrr.selectListMrrCldr */
+   SELECT CAST(A.MRR_SEQ as CHAR) AS id
+      ,A.SJ AS title
+      ,CONCAT(DATE_FORMAT(STR_TO_DATE(A.RSDVE_DT, '%Y%m%d'), '%Y-%m-%d'),'T',DATE_FORMAT(STR_TO_DATE(A.START_T, '%H%i'), '%H:%i')) AS start
+      ,CONCAT(DATE_FORMAT(STR_TO_DATE(A.RSDVE_DT, '%Y%m%d'), '%Y-%m-%d'),'T',DATE_FORMAT(STR_TO_DATE(A.END_T, '%H%i'), '%H:%i')) AS end
+   FROM TB_MRR A
+   </select>
+
+
+</mapper>
